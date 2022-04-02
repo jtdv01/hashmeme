@@ -26,8 +26,11 @@ TODO
 This uses `nix` to get a development environment up.
 
 This is optional but highly recommended to get up a reproducible development environment.
+
+For more detailed instructions for your system see: https://nixos.org/download.html
 ```sh
-sh <(curl -L https://nixos.org/nix/install) --no-daemon
+# For linux multi-user installation:
+sh <(curl -L https://nixos.org/nix/install) --daemon
 ```
 
 ## Start nix daemon
