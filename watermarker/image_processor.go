@@ -1,14 +1,13 @@
 package watermarker
 
 import (
-    "github.com/nfnt/resize"
-	"fmt"
+	"errors"
 	"image"
-	"image/color"
 	"image/draw"
 	"image/png"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 func ReadImageFile(inputFile string) image.Image {
@@ -26,38 +25,19 @@ func ReadImageFile(inputFile string) image.Image {
 	return decoded
 }
 
-func WriteImageFile(outImagePath string, outImage image.Image) {
+func WriteImageToFile(outImagePath string, outImage image.Image) {
+	if _, err := os.Stat(outImagePath); errors.Is(err, os.ErrNotExist) {
+		dir := filepath.Dir(outImagePath)
+		err := os.Mkdir(dir, os.ModePerm)
+		if err != nil {
+		}
+	}
 	outFile, err := os.Create(outImagePath)
 	defer outFile.Close()
 	if err != nil {
 		log.Fatalf("Failed to create: %s", err)
 	}
 	png.Encode(outFile, outImage)
-}
-
-func PrintImage(fullImg image.Image) {
-    // Resizes the image so it's easier to read the test logs
-    // used only for preview
-	resizedImg := resize.Resize(75, 0, fullImg, resize.Lanczos3)
-	shades := []string{" ", "░", "▒", "▓", "█"}
-	yStart := resizedImg.Bounds().Min.Y
-	yEnd := resizedImg.Bounds().Max.Y
-	for y := yStart; y < yEnd; y++ {
-	    xStart := resizedImg.Bounds().Min.X
-	    xEnd := resizedImg.Bounds().Max.X
-		for x := xStart; x < xEnd; x++ {
-			// Convert to greyscale
-			col := color.GrayModel.Convert(resizedImg.At(x, y)).(color.Gray)
-			shade := col.Y / 51
-			if shade >= 5 {
-				shade = shade - 1
-			}
-			shadeToPrint := shades[shade]
-			fmt.Print(shadeToPrint)
-		}
-		// Start a new y
-		fmt.Print("\n")
-	}
 }
 
 func BlendImageWithWaterMark(baseImage image.Image, qrImage image.Image) image.Image {

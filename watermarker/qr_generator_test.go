@@ -7,5 +7,5 @@ import (
 func TestQrGenerator(t *testing.T) {
 	text := "Hello Future!"
 	got := GenerateQr(text)
-    PrintImage(got)
+	WriteImageToFile("./tmp/qr.png", got)
 }

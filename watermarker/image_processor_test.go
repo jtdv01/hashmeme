@@ -7,14 +7,13 @@ import (
 func TestImageProcessor(t *testing.T) {
 	testImagePath := "./resources/whos-the-original.png"
 	encodedImage := ReadImageFile(testImagePath)
-	PrintImage(encodedImage)
-
+	WriteImageToFile("./tmp/base.png", encodedImage)
 }
 
 func TestBlendImages(t *testing.T) {
 	testImagePath := "./resources/whos-the-original.png"
 	baseImage := ReadImageFile(testImagePath)
-	qrImage := GenerateQr("Some text")
+	qrImage := GenerateQr("Hello future")
 	outImage := BlendImageWithWaterMark(baseImage, qrImage)
-	PrintImage(outImage)
+	WriteImageToFile("./tmp/blended.png", outImage)
 }

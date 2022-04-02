@@ -9,7 +9,7 @@ import (
 
 func GenerateQr(textToEncode string) image.Image {
 	var imgByteArray []byte
-	imgByteArray, err := qrcode.Encode(textToEncode, qrcode.Medium, 128)
+	imgByteArray, err := qrcode.Encode(textToEncode, qrcode.High, 2)
 	if err != nil {
 		log.Fatal(err)
 	}
