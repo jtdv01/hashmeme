@@ -5,9 +5,9 @@ import (
 	"testing"
 )
 
-func TestEncoder(t *testing.T) {
+func TestQrGenerator(t *testing.T) {
 	text := "Hello Future!"
-	got := Encode(text)
+	got := GenerateQr(text)
 
 	fmt.Println(got)
 }

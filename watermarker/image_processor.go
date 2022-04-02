@@ -2,9 +2,9 @@ package watermarker
 
 import (
 	"image"
-	"image/png"
 	"log"
 	"os"
+	"image/png"
 )
 
 func ReadImageFile(inputFile string) image.Image {
@@ -21,3 +21,7 @@ func ReadImageFile(inputFile string) image.Image {
 
 	return decoded
 }
+
+// func BlendImageWithWaterMark(image.Image, ) {
+//
+// }
