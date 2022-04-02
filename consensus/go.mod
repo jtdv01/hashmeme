@@ -1,14 +1,17 @@
-module consensus
+module github.com/jtdv01/hashmeme/consensus
 
 go 1.17
+
+require (
+	github.com/hashgraph/hedera-sdk-go/v2 v2.11.0
+	github.com/joho/godotenv v1.4.0
+)
 
 require (
 	github.com/btcsuite/btcd v0.20.1-beta // indirect
 	github.com/ethereum/go-ethereum v1.10.16 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/hashgraph/hedera-protobufs-go v0.2.1-0.20220222084737-119eab707793 // indirect
-	github.com/hashgraph/hedera-sdk-go/v2 v2.11.0 // indirect
-	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rs/zerolog v1.26.1 // indirect
 	github.com/tyler-smith/go-bip39 v1.1.0 // indirect

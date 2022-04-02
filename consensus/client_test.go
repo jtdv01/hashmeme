@@ -5,5 +5,5 @@ import (
 )
 
 func TestClient(t *testing.T) {
-    createClient()
+	createClient()
 }
