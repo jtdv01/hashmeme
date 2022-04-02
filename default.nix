@@ -6,6 +6,7 @@ pkgs.mkShell {
   buildInputs = [
     pkgs.go
     pkgs.neovim
+    pkgs.nodejs
     pkgs.which
   ];
   shellHook = ''

@@ -1,0 +1,5 @@
+package watermarker
+
+
+func ReadImageFile(){
+}
