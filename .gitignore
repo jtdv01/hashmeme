@@ -1,2 +1,4 @@
 .idea
 watermarker/tmp
+tmp
+*.env
