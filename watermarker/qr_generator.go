@@ -1,10 +1,10 @@
 package watermarker
 
 import (
-	qrcode "github.com/skip2/go-qrcode"
-	"log"
-	"image"
 	"bytes"
+	qrcode "github.com/skip2/go-qrcode"
+	"image"
+	"log"
 )
 
 func GenerateQr(textToEncode string) image.Image {
