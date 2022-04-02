@@ -1,13 +1,13 @@
 package watermarker
 
 import (
-    "testing"
-    "fmt"
+	"fmt"
+	"testing"
 )
 
 func TestEncoder(t *testing.T) {
-    text := "Hello Future!"
-    got := Encode(text)
+	text := "Hello Future!"
+	got := Encode(text)
 
-    fmt.Println(got)
+	fmt.Println(got)
 }
