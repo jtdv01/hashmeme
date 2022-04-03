@@ -25,4 +25,3 @@ func TestBlendImages(t *testing.T) {
 	outImage := BlendImageWithWaterMark(baseImage, qrImage)
 	WriteImageToFile("./tmp/blended.png", outImage)
 }
-

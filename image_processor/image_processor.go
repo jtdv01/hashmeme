@@ -2,6 +2,7 @@ package image_processor
 
 import (
 	"errors"
+	"fmt"
 	"github.com/otiai10/gosseract/v2"
 	"image"
 	"image/color"
@@ -46,7 +47,15 @@ func WriteImageToFile(outImagePath string, outImage image.Image) {
 func BlendImageWithWaterMark(baseImage image.Image, qrImage image.Image) image.Image {
 	// Get x y of baseImage
 	bounds := baseImage.Bounds()
+
 	qrBounds := qrImage.Bounds()
+	point1 := image.Point{bounds.Max.X - qrBounds.Max.X, bounds.Max.Y - qrBounds.Max.Y}
+	point2 := bounds.Max
+	// Put qr down at the bottom right
+	qrBounds = image.Rectangle{point1, point2}
+
+	fmt.Println(bounds)
+	fmt.Println(qrBounds)
 	outImage := image.NewRGBA(bounds)
 
 	// Draw with bounds of baseImage
