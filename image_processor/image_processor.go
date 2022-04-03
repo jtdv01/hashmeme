@@ -2,7 +2,6 @@ package image_processor
 
 import (
 	"errors"
-	"fmt"
 	"github.com/otiai10/gosseract/v2"
 	"image"
 	"image/color"
@@ -11,6 +10,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -53,9 +53,6 @@ func BlendImageWithWaterMark(baseImage image.Image, qrImage image.Image) image.I
 	point2 := bounds.Max
 	// Put qr down at the bottom right
 	qrBounds = image.Rectangle{point1, point2}
-
-	fmt.Println(bounds)
-	fmt.Println(qrBounds)
 	outImage := image.NewRGBA(bounds)
 
 	// Draw with bounds of baseImage
@@ -96,7 +93,10 @@ func ReadTextFromImage(inputImagePath string) string {
 
 	// Tesseract for reading
 	client := gosseract.NewClient()
-	client.SetPageSegMode(gosseract.PSM_SPARSE_TEXT)
+	err := client.SetConfigFile("./tesseract.ini")
+	if err != nil {
+		log.Fatalf("Failed to load config %s", err)
+	}
 	defer client.Close()
 
 	client.SetImage(tmpOutputForFilteredText)
@@ -104,6 +104,11 @@ func ReadTextFromImage(inputImagePath string) string {
 	if err != nil {
 		log.Fatalf("Failed to read text: %s", err)
 	}
-	out := strings.Replace(text, "\n", " ", -1)
+
+	// Normalize spaces
+	regexp, err := regexp.Compile(`[\s]+`)
+	match := regexp.ReplaceAllString(text, " ")
+	// Set to lower case
+	out := strings.ToLower(match)
 	return out
 }
