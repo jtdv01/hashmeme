@@ -8,6 +8,8 @@ pkgs.mkShell {
     pkgs.go
     pkgs.neovim
     pkgs.nodejs
+    pkgs.tesseract
+    pkgs.leptonica
     pkgs.which
   ];
   shellHook = ''

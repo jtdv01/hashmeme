@@ -8,6 +8,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+    "github.com/otiai10/gosseract/v2"
+    "image/color"
 )
 
 func ReadImageFile(inputFile string) image.Image {
@@ -50,4 +52,39 @@ func BlendImageWithWaterMark(baseImage image.Image, qrImage image.Image) image.I
 	draw.Draw(outImage, bounds, baseImage, image.ZP, draw.Src)
 	draw.Draw(outImage, qrBounds, qrImage, image.ZP, draw.Src)
 	return outImage
+}
+
+func FilterOutNonText(img image.Image) *image.Gray {
+    // Filters out non text pixels from an image so OCR can read the text
+    bounds := img.Bounds()
+    gray := image.NewGray(bounds)
+    for x := 0; x < bounds.Max.X; x++ {
+        for y := 0; y < bounds.Max.Y; y++ {
+            var pixel = img.At(x, y)
+            col := color.RGBAModel.Convert(pixel).(color.RGBA)
+            gray.Set(x, y, col)
+            grayPixel := gray.At(x, y)
+            grayness := color.GrayModel.Convert(grayPixel).(color.Gray)
+            if grayness.Y < 240 {
+                black := color.Gray{1}
+                gray.Set(x, y, black)
+            }
+        }
+    }
+    return gray
+}
+
+func ReadTextFromImage(inputImagePath string) string{
+    // Convert to greyscale
+	img := ReadImageFile(inputImagePath)
+	grey := FilterOutNonText(img)
+	WriteImageToFile("./tmp/tmp.png", grey)
+
+	// Tesseract for reading
+	client := gosseract.NewClient()
+	defer client.Close()
+
+	client.SetImage("./tmp/tmp.png")
+	text, _ := client.Text()
+	return text
 }
