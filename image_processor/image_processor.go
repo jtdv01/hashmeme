@@ -65,8 +65,11 @@ func FilterOutNonText(img image.Image) *image.Gray {
             gray.Set(x, y, col)
             grayPixel := gray.At(x, y)
             grayness := color.GrayModel.Convert(grayPixel).(color.Gray)
+            black := color.Gray{1}
+            white := color.Gray{255}
             if grayness.Y < 240 {
-                black := color.Gray{1}
+                gray.Set(x, y, white)
+            } else {
                 gray.Set(x, y, black)
             }
         }

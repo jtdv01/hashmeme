@@ -8,7 +8,7 @@ pkgs.mkShell {
     pkgs.go
     pkgs.neovim
     pkgs.nodejs
-    pkgs.tesseract
+    pkgs.tesseract4
     pkgs.leptonica
     pkgs.which
   ];
