@@ -1,4 +1,4 @@
-module github.com/jtdv01/hashmeme/watermarker
+module github.com/jtdv01/hashmeme/image_processor
 
 go 1.13
 

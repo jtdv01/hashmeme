@@ -1,4 +1,4 @@
-package watermarker
+package image_processor
 
 import (
 	"testing"
