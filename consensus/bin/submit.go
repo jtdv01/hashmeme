@@ -25,6 +25,7 @@ func main() {
 
 	//Create the transaction
 	transaction := hedera.NewTopicMessageSubmitTransaction().
+		SetTransactionMemo(content).
 		SetTopicID(topicID).
 		SetMessage([]byte(content))
 
@@ -42,7 +43,9 @@ func main() {
 
 	//Get the transaction consensus status
 	transactionStatus := transactionReceipt.Status
+	transactionID := transaction.GetTransactionID()
+	transactionHash, _ := transaction.GetTransactionHash()
+	transactionHashStr := string(transactionHash)
 
-	fmt.Printf("The transaction consensus status is %v\n", transactionStatus)
-	fmt.Printf("Receipt: %s", transactionReceipt)
+	fmt.Printf("The transaction consensus status is %v\nTransactionID:%v\nTransactionHash:%v", transactionStatus, transactionID, transactionHashStr)
 }
