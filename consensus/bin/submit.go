@@ -25,6 +25,7 @@ func main() {
 
 	//Create the transaction
 	transaction := hedera.NewTopicMessageSubmitTransaction().
+		SetTransactionMemo(content).
 		SetTopicID(topicID).
 		SetMessage([]byte(content))
 
