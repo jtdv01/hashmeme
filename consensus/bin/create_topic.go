@@ -30,5 +30,5 @@ func main() {
 	//Get the topic ID
 	newTopicID := *transactionReceipt.TopicID
 
-	fmt.Printf("The new topic ID is %v\n", newTopicID)
+	fmt.Println(newTopicID)
 }
