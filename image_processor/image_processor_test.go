@@ -1,8 +1,8 @@
 package image_processor
 
 import (
-	"testing"
 	"fmt"
+	"testing"
 )
 
 func TestImageProcessor(t *testing.T) {
@@ -11,16 +11,18 @@ func TestImageProcessor(t *testing.T) {
 	WriteImageToFile("./tmp/base.png", encodedImage)
 }
 
+func TestReadTextFromImage(t *testing.T) {
+	testImagePath := "./resources/whos-the-original.png"
+	text := ReadTextFromImage(testImagePath)
+	fmt.Println(text)
+}
+
 func TestBlendImages(t *testing.T) {
 	testImagePath := "./resources/whos-the-original.png"
 	baseImage := ReadImageFile(testImagePath)
-	qrImage := GenerateQr("Hello future")
+	text := ReadTextFromImage(testImagePath)
+	qrImage := GenerateQr(text)
 	outImage := BlendImageWithWaterMark(baseImage, qrImage)
 	WriteImageToFile("./tmp/blended.png", outImage)
 }
 
-func TestReadTextFromImage(t *testing.T) {
-	testImagePath := "./resources/whos-the-original.png"
-    text := ReadTextFromImage(testImagePath)
-    fmt.Println(text)
-}
