@@ -10,9 +10,11 @@ pkgs.mkShell {
     pkgs.mesa
     pkgs.xorg.libX11
     pkgs.xorg.libX11.dev
-    # pkgs.xorg.libXcursor
-    # pkgs.xorg.libXrandr
-    # pkgs.xorg.libXinerama
+    pkgs.xorg.libXcursor
+    pkgs.xorg.libXrandr
+    pkgs.xorg.libXi.dev
+    pkgs.xorg.libXinerama.dev
+    pkgs.gtk4
     pkgs.tesseract4
     pkgs.leptonica
     pkgs.which
