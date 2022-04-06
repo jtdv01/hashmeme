@@ -7,14 +7,7 @@ pkgs.mkShell {
     pkgs.git
     pkgs.go
     pkgs.neovim
-    pkgs.mesa
-    pkgs.xorg.libX11
-    pkgs.xorg.libX11.dev
-    pkgs.xorg.libXcursor
-    pkgs.xorg.libXrandr
-    pkgs.xorg.libXi.dev
-    pkgs.xorg.libXinerama.dev
-    pkgs.gtk4
+    pkgs.nodejs
     pkgs.tesseract4
     pkgs.leptonica
     pkgs.which
