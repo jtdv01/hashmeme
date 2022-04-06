@@ -6,9 +6,14 @@
 </head>
 
 <body>
-<h1>Hello World!</h1>
-Node: <script>document.write(process.versions.node)</script>,
-Chrome: <script>document.write(process.versions.chrome)</script>,
-Electron: <script>document.write(process.versions.electron)</script>.
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="require.js"></script>
+
+    <h1>Hello Future!</h1>
+    <button type="button" id="click-me">Click Me!</button>
+
+
+    <!-- load renderer.js at the end -->
+    <script src="renderer.js"></script>
 </body>
 </html>
