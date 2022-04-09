@@ -1,15 +1,15 @@
 package main
 
 import (
-    "log"
-    "image/color"
+	"image/color"
+	"log"
 
-    "fyne.io/fyne/v2"
+	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
-	"fyne.io/fyne/v2/widget"
-	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/widget"
 
 	"fyne.io/fyne/v2/dialog"
 
@@ -35,8 +35,7 @@ func main() {
 		},
 	}
 
-
-    text1 := canvas.NewText("Hashmeme", color.NRGBA{R: 255, G: 255, B: 255, A:255 })
+	text1 := canvas.NewText("Hashmeme", color.NRGBA{R: 255, G: 255, B: 255, A: 255})
 	content := container.New(layout.NewGridLayout(2), text1, form)
 
 	w.SetContent(content)

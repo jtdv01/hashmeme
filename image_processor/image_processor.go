@@ -2,6 +2,7 @@ package image_processor
 
 import (
 	"errors"
+	"fmt"
 	"github.com/otiai10/gosseract/v2"
 	"image"
 	"image/color"
@@ -12,7 +13,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
-	"fmt"
 )
 
 func ReadImageFile(inputFile string) image.Image {
@@ -86,9 +86,7 @@ func FilterOutNonText(img image.Image) *image.Gray {
 }
 
 func ReadTextFromImage(inputImagePath string) string {
-
-    pwd, _ := os.Getwd()
-    fmt.Println(pwd)
+	pwd, _ := os.Getwd()
 
 	// Convert to greyscale
 	img := ReadImageFile(inputImagePath)
@@ -98,7 +96,7 @@ func ReadTextFromImage(inputImagePath string) string {
 
 	// Tesseract for reading
 	client := gosseract.NewClient()
-	err := client.SetConfigFile(fmt.Sprintf("%s/image_processor/tesseract.ini", pwd))
+	err := client.SetConfigFile(fmt.Sprintf("%s/tesseract.ini", pwd))
 	if err != nil {
 		log.Fatalf("Failed to load config %s", err)
 	}
