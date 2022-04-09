@@ -12,7 +12,7 @@ main () {
   else
     echo "Nix not found. See ./bin/install.sh."
     echo "Trying to build without nix, assumes you have go and dependencies installed..."
-    go test
+    go test image_processor/*.go
   fi
 }
 
