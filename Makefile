@@ -9,7 +9,7 @@ gui: build
 
 # nixGL is required if you are running on nix
 gui-nix: build
-	nixGL ./target/hashmeme
+	cd ./target && nixGL ./hashmeme
 
 tests:
 	./bin/tests.sh

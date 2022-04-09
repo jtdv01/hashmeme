@@ -3,15 +3,15 @@ package main
 import (
 	"image/color"
 	"log"
+	"os"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
-
-	"fyne.io/fyne/v2/dialog"
 
 	"github.com/jtdv01/hashmeme/consensus"
 	"github.com/jtdv01/hashmeme/image_processor"
@@ -24,6 +24,10 @@ func main() {
 	author := widget.NewEntry()
 	pathToImage := widget.NewMultiLineEntry()
 
+	// Add some defaults
+	pwd, _ := os.Getwd()
+	pathToImage.Text = pwd
+
 	form := &widget.Form{
 		Items: []*widget.FormItem{
 			{Text: "Author:", Widget: author},
@@ -33,8 +37,8 @@ func main() {
 			textContent := image_processor.ReadTextFromImage(pathToImage.Text)
 			imageSha256 := image_processor.HashImageSha256(pathToImage.Text)
 			// client := consensus.CreateClient()
-		    hashMemeMessage := 	consensus.NewMessage(author.Text, textContent, imageSha256)
-            dialog.ShowInformation("Result", hashMemeMessage, w)
+			hashMemeMessage := consensus.NewMessage(author.Text, textContent, imageSha256)
+			dialog.ShowInformation("Result", hashMemeMessage, w)
 
 		},
 	}

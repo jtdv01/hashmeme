@@ -27,7 +27,7 @@ func TestBlendImages(t *testing.T) {
 }
 
 func TestHashImageSha256(t *testing.T) {
-    testImagePath := "./resources/hashmeme.png"
-    hash := HashImageSha256(testImagePath)
-    fmt.Println(hash)
+	testImagePath := "./resources/hashmeme.png"
+	hash := HashImageSha256(testImagePath)
+	fmt.Println(hash)
 }
