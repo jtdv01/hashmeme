@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
 main () {
-  # export GOROOT=`pwd`:${GOROOT}
-  nix-shell --pure --keep GOROOT ./default.nix --run \
-    "/nix/var/nix/profiles/per-user/${USER}/profile/bin/nixGL go run ./main.go"
+  export NIX_USER_PATH=/nix/var/nix/profiles/per-user/"${USER}"/profile/bin
+  nix-shell --pure \
+    --keep GOROOT --keep PATH \
+    ./default.nix --run \
+    "${NIX_USER_PATH}/nixGL go run ./main.go"
 }
 
 main

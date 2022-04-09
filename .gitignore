@@ -3,3 +3,4 @@ image_processor/tmp
 tmp
 *.env
 node_modules
+target
