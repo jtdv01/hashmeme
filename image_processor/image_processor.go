@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"fmt"
 )
 
 func ReadImageFile(inputFile string) image.Image {
@@ -85,15 +86,19 @@ func FilterOutNonText(img image.Image) *image.Gray {
 }
 
 func ReadTextFromImage(inputImagePath string) string {
+
+    pwd, _ := os.Getwd()
+    fmt.Println(pwd)
+
 	// Convert to greyscale
 	img := ReadImageFile(inputImagePath)
 	grey := FilterOutNonText(img)
-	tmpOutputForFilteredText := "./tmp/text_filtered.png"
+	tmpOutputForFilteredText := fmt.Sprintf("%s/tmp/text_filtered.png", pwd)
 	WriteImageToFile(tmpOutputForFilteredText, grey)
 
 	// Tesseract for reading
 	client := gosseract.NewClient()
-	err := client.SetConfigFile("./tesseract.ini")
+	err := client.SetConfigFile(fmt.Sprintf("%s/image_processor/tesseract.ini", pwd))
 	if err != nil {
 		log.Fatalf("Failed to load config %s", err)
 	}
