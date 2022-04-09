@@ -6,20 +6,28 @@ If only there was a system that could trace origins of memes...
 
 Introducing `hashmeme`, an image watermarking tool that makes use of Hedera services.
 
-
-# Start backend server
+# Building
 
 ```sh
-TODO
+make build
+
+# Check ./target for runnable
 ```
 
-# Bootstrap token
+# Making a GUI frontend
 
-TODO
+```sh
+make gui
 
-# Start frontend
+# or if using nix:
+make gui-nix
+```
 
-TODO
+# Runnig tests
+
+```
+make tests
+```
 
 # Nix Installation (optional)
 
@@ -29,8 +37,7 @@ This is optional but highly recommended to get up a reproducible development env
 
 For more detailed instructions for your system see: https://nixos.org/download.html
 ```sh
-# For linux multi-user installation:
-sh <(curl -L https://nixos.org/nix/install) --daemon
+make install
 ```
 
 ## Start nix daemon
