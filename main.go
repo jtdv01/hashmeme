@@ -14,6 +14,7 @@ import (
 	"fyne.io/fyne/v2/dialog"
 
 	"github.com/jtdv01/hashmeme/image_processor"
+	"github.com/jtdv01/hashmeme/consensus"
 )
 
 func main() {
@@ -30,6 +31,7 @@ func main() {
 		OnSubmit: func() { // optional, handle form submission
 			log.Println("Form submitted:", pathToImage.Text)
 			imageText := image_processor.ReadTextFromImage(pathToImage.Text)
+			client :=
 			dialog.ShowInformation("Result", imageText, w)
 
 		},

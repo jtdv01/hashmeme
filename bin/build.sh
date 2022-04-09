@@ -15,7 +15,7 @@ main () {
     go build -o ./target
   fi
 
-  cp ./consensus/.env-example ./target
+  cp ./consensus/.env* ./target
   cp ./image_processor/tesseract.ini ./target
 
   echo "Build done in ./target/"
