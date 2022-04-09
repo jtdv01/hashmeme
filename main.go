@@ -13,8 +13,8 @@ import (
 
 	"fyne.io/fyne/v2/dialog"
 
-	"github.com/jtdv01/hashmeme/image_processor"
 	"github.com/jtdv01/hashmeme/consensus"
+	"github.com/jtdv01/hashmeme/image_processor"
 )
 
 func main() {
@@ -30,9 +30,11 @@ func main() {
 			{Text: "Path to image:", Widget: pathToImage}},
 		OnSubmit: func() { // optional, handle form submission
 			log.Println("Form submitted:", pathToImage.Text)
-			imageText := image_processor.ReadTextFromImage(pathToImage.Text)
-			client :=
-			dialog.ShowInformation("Result", imageText, w)
+			textContent := image_processor.ReadTextFromImage(pathToImage.Text)
+			imageSha256 := image_processor.HashImageSha256(pathToImage.Text)
+			// client := consensus.CreateClient()
+		    hashMemeMessage := 	consensus.NewMessage(author.Text, textContent, imageSha256)
+            dialog.ShowInformation("Result", hashMemeMessage, w)
 
 		},
 	}

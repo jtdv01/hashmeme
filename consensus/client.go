@@ -1,18 +1,17 @@
 package consensus
 
 import (
+	"encoding/json"
 	"github.com/hashgraph/hedera-sdk-go/v2"
 	"github.com/joho/godotenv"
 	"log"
 	"os"
-    "encoding/json"
-    	"crypto/sha256"
 )
 
 type HashMemeMessage struct {
-    Author string
-    TextContent string
-    ImageSha256 string
+	Author      string
+	TextContent string
+	ImageSha256 string
 }
 
 func CreateClient() *hedera.Client {
@@ -41,17 +40,12 @@ func CreateClient() *hedera.Client {
 	return client
 }
 
-func NewMessage(author string, textContent string) string {
-    var hashMemeMessage HashMemeMessage
-    hashMemeMessage = HashMemeMessage{Author: author, TextContent: textContent, ImageSha256: "foo"}
-    bytes, err := json.Marshal(hashMemeMessage)
-    if err != nil {
-        log.Fatalf("Could not marshall message %v", err)
-    }
-    return string(bytes)
-}
-
-func HashImage() {
-    hash := sha256.Sum256(data)
-    return hash
+func NewMessage(author string, textContent string, imageSha256 string) string {
+	var hashMemeMessage HashMemeMessage
+	hashMemeMessage = HashMemeMessage{Author: author, TextContent: textContent, ImageSha256: imageSha256}
+	bytes, err := json.Marshal(hashMemeMessage)
+	if err != nil {
+		log.Fatalf("Could not marshall message %v", err)
+	}
+	return string(bytes)
 }

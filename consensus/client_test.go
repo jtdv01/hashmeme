@@ -1,8 +1,8 @@
 package consensus
 
 import (
-	"testing"
 	"log"
+	"testing"
 )
 
 // func TestClient(t *testing.T) {
@@ -10,6 +10,6 @@ import (
 // }
 
 func TestCreateMessage(t *testing.T) {
-    message := NewMessage("me", "some random meme")
-    log.Println(message)
+	message := NewMessage("me", "some random meme")
+	log.Println(message)
 }

@@ -7,12 +7,14 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
+	"crypto/sha256"
 	"image/png"
 	"log"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+	"bytes"
 )
 
 func ReadImageFile(inputFile string) image.Image {
@@ -114,4 +116,14 @@ func ReadTextFromImage(inputImagePath string) string {
 	// Set to lower case
 	out := strings.ToLower(match)
 	return out
+}
+
+func HashImageSha256(inputImagePath string) string {
+    buf := new(bytes.Buffer)
+	img := ReadImageFile(inputImagePath)
+    png.Encode(buf, img)
+    data := buf.Bytes()
+	hash := sha256.Sum256(data)
+	sha56Hash := fmt.Sprintf("%v", hash[:])
+	return sha56Hash
 }
