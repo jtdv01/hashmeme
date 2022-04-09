@@ -2,6 +2,7 @@ package image_processor
 
 import (
 	"errors"
+	"fmt"
 	"github.com/otiai10/gosseract/v2"
 	"image"
 	"image/color"
@@ -12,7 +13,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
-	"fmt"
 )
 
 func ReadImageFile(inputFile string) image.Image {
@@ -86,7 +86,7 @@ func FilterOutNonText(img image.Image) *image.Gray {
 }
 
 func ReadTextFromImage(inputImagePath string) string {
-    pwd, _ := os.Getwd()
+	pwd, _ := os.Getwd()
 
 	// Convert to greyscale
 	img := ReadImageFile(inputImagePath)
