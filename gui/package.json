@@ -1,8 +1,0 @@
-{
-  "devDependencies": {
-    "electron": "^18.0.2"
-  },
-  "scripts": {
-    "start": "electron --no-sandbox main.js"
-  }
-}
