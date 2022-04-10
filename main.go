@@ -1,10 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"image/color"
 	"log"
 	"os"
-	"fmt"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -28,7 +28,7 @@ func main() {
 
 	// Add some defaults
 	cwd, _ := os.Getwd()
-	widgetPathToImage.Text = fmt.Sprintf("%s/hashmeme.png", cwd)
+	widgetPathToImage.SetText(fmt.Sprintf("%s/hashmeme.png", cwd))
 	var operatorID string
 	var operatorKey string
 
@@ -39,10 +39,8 @@ func main() {
 	} else {
 		operatorID = os.Getenv("OPERATOR_ID")
 		operatorKey = os.Getenv("OPERATOR_KEY")
-		widgetOperatorID.Text = operatorID
-		widgetOperatorKey.Text = operatorKey
-		log.Println(operatorID)
-		log.Println(operatorKey)
+		widgetOperatorID.SetText(operatorID)
+		widgetOperatorKey.SetText(operatorKey)
 	}
 
 	form := &widget.Form{
