@@ -2,6 +2,7 @@
 set -e
 
 main () {
+  git_root=$(git rev-parse --show-toplevel)
   rm -rf ./target
   mkdir ./target
 
@@ -15,8 +16,9 @@ main () {
     go build -o ./target
   fi
 
-  cp ./consensus/.env* ./target
-  cp ./image_processor/tesseract.ini ./target
+  cp "${git_root}"/image_processor/tesseract.ini ./target
+  cp "${git_root}"/.env ./target
+  cp "${git_root}"/image_processor/resources/*.png ./target
 
   echo "Build done in ./target/"
 }

@@ -12,8 +12,10 @@ pkgs.mkShell {
     pkgs.leptonica
     pkgs.mesa
     pkgs.neovim
+    pkgs.stdenv
     pkgs.tesseract4
     pkgs.which
+    pkgs.pkg-config
     pkgs.xorg.libXcursor
     pkgs.xorg.libXi
     pkgs.xorg.libXinerama

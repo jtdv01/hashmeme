@@ -1,14 +1,14 @@
 install:
 	./bin/install.sh
 
-build: install
+build:
 	./bin/build.sh
 
-gui: build
+gui-nonix: build
 	./target/hashmeme
 
 # nixGL is required if you are running on nix
-gui-nix: build
+gui: build
 	cd ./target && nixGL ./hashmeme
 
 tests:

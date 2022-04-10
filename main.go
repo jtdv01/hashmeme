@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"image/color"
 	"log"
 	"os"
@@ -12,7 +13,7 @@ import (
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
-
+	"github.com/joho/godotenv"
 	"github.com/jtdv01/hashmeme/consensus"
 	"github.com/jtdv01/hashmeme/image_processor"
 )
@@ -21,24 +22,47 @@ func main() {
 	a := app.New()
 	w := a.NewWindow("Hello Future!")
 
-	author := widget.NewEntry()
-	pathToImage := widget.NewMultiLineEntry()
+	widgetOperatorID := widget.NewEntry()
+	widgetPathToImage := widget.NewMultiLineEntry()
+	widgetOperatorKey := widget.NewPasswordEntry()
 
 	// Add some defaults
-	pwd, _ := os.Getwd()
-	pathToImage.Text = pwd
+	cwd, _ := os.Getwd()
+	widgetPathToImage.SetText(fmt.Sprintf("%s/hashmeme.png", cwd))
+	var operatorID string
+	var operatorKey string
+
+	// Read .env file
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("Could not read .env file, you'll have to enter details manually")
+	} else {
+		operatorID = os.Getenv("OPERATOR_ID")
+		operatorKey = os.Getenv("OPERATOR_KEY")
+		widgetOperatorID.SetText(operatorID)
+		widgetOperatorKey.SetText(operatorKey)
+	}
 
 	form := &widget.Form{
 		Items: []*widget.FormItem{
-			{Text: "Author:", Widget: author},
-			{Text: "Path to image:", Widget: pathToImage}},
+			{Text: "OperatorID:", Widget: widgetOperatorID},
+			{Text: "Path to image:", Widget: widgetPathToImage},
+			{Text: "OperatorKey:", Widget: widgetOperatorKey},
+		},
 		OnSubmit: func() { // optional, handle form submission
-			log.Println("Form submitted:", pathToImage.Text)
-			textContent := image_processor.ReadTextFromImage(pathToImage.Text)
-			imageSha256 := image_processor.HashImageSha256(pathToImage.Text)
-			// client := consensus.CreateClient()
-			hashMemeMessage := consensus.NewMessage(author.Text, textContent, imageSha256)
+			log.Println("Form submitted:", widgetPathToImage.Text)
+			textContent := image_processor.ReadTextFromImage(widgetPathToImage.Text)
+			imageSha256 := image_processor.HashImageSha256(widgetPathToImage.Text)
+			hashMemeMessage := consensus.NewMessage(widgetOperatorID.Text, textContent, imageSha256)
+
+			operatorID = widgetOperatorID.Text
+			operatorKey = widgetOperatorKey.Text
+
 			dialog.ShowInformation("Result", hashMemeMessage, w)
+
+			// Send to hgraph
+			// client := consensus.CreateClient()
+			// client.SendMessage(hashMemeMessage)
 
 		},
 	}
