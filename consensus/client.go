@@ -19,7 +19,7 @@ func CreateClient(_operatorID string, _operatorKey string) *hedera.Client {
 		log.Fatalf("Unable to load environment variables from .env file. Error:\n%s\n", err)
 	}
 
-	operatorAccountID, err := hedera.AccountIDFromString(_operatorId)
+	operatorAccountID, err := hedera.AccountIDFromString(_operatorID)
 	if err != nil {
 		panic(err)
 	}
