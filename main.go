@@ -22,10 +22,19 @@ func main() {
 
 	author := widget.NewEntry()
 	pathToImage := widget.NewMultiLineEntry()
+	operatorKey := widget.NewPasswordEntry()
+
+	// Read from .env file to get defaults
+	env_operator_id := os.Getenv("OPERATOR_ID")
+	env_operator_key := os.Getenv("OPERATOR_KEY")
+
+	// Set as defaults
+	author.Text = env_operator_id
+	operatorKey.Text = env_operator_key
 
 	form := &widget.Form{
 		Items: []*widget.FormItem{
-			{Text: "Author:", Widget: author},
+			{Text: "Author/OperatorID:", Widget: author},
 			{Text: "Path to image:", Widget: pathToImage}},
 		OnSubmit: func() { // optional, handle form submission
 			log.Println("Form submitted:", pathToImage.Text)
