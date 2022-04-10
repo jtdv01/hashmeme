@@ -44,3 +44,23 @@ func NewMessage(author string, textContent string, imageSha256 string) string {
 	}
 	return string(bytes)
 }
+
+func SendMessage(client *hedera.Client, topicIDString string, content string) hedera.TransactionResponse {
+	topicID, errTopicId := hedera.TopicIDFromString(topicIDString)
+	if errTopicId != nil {
+		panic(errTopicId)
+	}
+
+	//Create the transaction
+	transaction := hedera.NewTopicMessageSubmitTransaction().
+		SetTransactionMemo(content).
+		SetTopicID(topicID).
+		SetMessage([]byte(content))
+
+	//Sign with the client operator private key and submit the transaction to a Hedera network
+	txResponse, err := transaction.Execute(client)
+	if err != nil {
+		panic(err)
+	}
+	return txResponse
+}
