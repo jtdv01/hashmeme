@@ -23,6 +23,7 @@ func main() {
 	w := a.NewWindow("Hello Future!")
 
 	widgetOperatorID := widget.NewEntry()
+	widgetTopicID := widget.NewEntry()
 	widgetPathToImage := widget.NewMultiLineEntry()
 	widgetOperatorKey := widget.NewPasswordEntry()
 
@@ -41,17 +42,20 @@ func main() {
 		operatorKey = os.Getenv("OPERATOR_KEY")
 		widgetOperatorID.SetText(operatorID)
 		widgetOperatorKey.SetText(operatorKey)
+		widgetTopicID.SetText(os.Getenv("TOPIC_ID"))
 	}
 
 	form := &widget.Form{
 		Items: []*widget.FormItem{
 			{Text: "OperatorID:", Widget: widgetOperatorID},
+			{Text: "TopicID:", Widget: widgetTopicID},
 			{Text: "Path to image:", Widget: widgetPathToImage},
 			{Text: "OperatorKey:", Widget: widgetOperatorKey},
 		},
 		OnSubmit: func() { // optional, handle form submission
 			log.Println("Form submitted:", widgetPathToImage.Text)
 			textContent := image_processor.ReadTextFromImage(widgetPathToImage.Text)
+			// TODO: Fix sha as string
 			imageSha256 := image_processor.HashImageSha256(widgetPathToImage.Text)
 			hashMemeMessage := consensus.NewMessage(widgetOperatorID.Text, textContent, imageSha256)
 
@@ -61,8 +65,9 @@ func main() {
 			dialog.ShowInformation("Result", hashMemeMessage, w)
 
 			// Send to hgraph
-			// client := consensus.CreateClient()
-			// client.SendMessage(hashMemeMessage)
+			client := consensus.CreateClient(operatorID, operatorKey)
+			log.Println(client)
+			// TODO: consensus.SendMessage(client, topicID, hashMemeMessage)
 
 		},
 	}
