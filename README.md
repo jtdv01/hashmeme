@@ -19,8 +19,11 @@ make build
 ```sh
 make gui
 
-# or if using nix:
-make gui-nix
+```
+
+```sh
+# or if not using nix:
+make gui-nonix
 ```
 
 # Runnig tests
@@ -44,7 +47,7 @@ make install
 
 Start a daemon in one terminal window
 ```sh
-sudo sudo /nix/var/nix/profiles/default/bin/nix-daemon
+sudo /nix/var/nix/profiles/default/bin/nix-daemon
 ```
 
 ## Start a nix-shell
