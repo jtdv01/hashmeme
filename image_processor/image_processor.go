@@ -1,8 +1,8 @@
 package image_processor
 
 import (
-	"bytes"
 	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"github.com/otiai10/gosseract/v2"
@@ -10,6 +10,7 @@ import (
 	"image/color"
 	"image/draw"
 	"image/png"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -119,11 +120,12 @@ func ReadTextFromImage(inputImagePath string) string {
 }
 
 func HashImageSha256(inputImagePath string) string {
-	buf := new(bytes.Buffer)
-	img := ReadImageFile(inputImagePath)
-	png.Encode(buf, img)
-	data := buf.Bytes()
-	hash := sha256.Sum256(data)
-	sha56Hash := fmt.Sprintf("%v", hash[:])
-	return sha56Hash
+	data, err := ioutil.ReadFile(inputImagePath)
+	if err != nil {
+		panic(err)
+	}
+	h := sha256.New()
+	h.Write(data)
+	sha256Hash := hex.EncodeToString(h.Sum(nil))
+	return sha256Hash
 }
