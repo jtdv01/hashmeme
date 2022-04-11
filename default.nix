@@ -7,7 +7,7 @@ pkgs.mkShell {
     # https://github.com/guibou/nixGL
     pkgs.gcc
     pkgs.git
-    pkgs.go
+    pkgs.go_1_17
     pkgs.gtk3-x11
     pkgs.leptonica
     pkgs.mesa
