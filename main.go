@@ -55,20 +55,21 @@ func main() {
 		OnSubmit: func() { // optional, handle form submission
 			log.Println("Form submitted:", widgetPathToImage.Text)
 			textContent := image_processor.ReadTextFromImage(widgetPathToImage.Text)
-			// TODO: Fix sha as string
 			imageSha256 := image_processor.HashImageSha256(widgetPathToImage.Text)
+			topicID := widgetTopicID.Text
 			hashMemeMessage := consensus.NewMessage(widgetOperatorID.Text, textContent, imageSha256)
 
 			operatorID = widgetOperatorID.Text
 			operatorKey = widgetOperatorKey.Text
 
-			dialog.ShowInformation("Result", hashMemeMessage, w)
-
 			// Send to hgraph
 			client := consensus.CreateClient(operatorID, operatorKey)
-			log.Println(client)
-			// TODO: consensus.SendMessage(client, topicID, hashMemeMessage)
+			txResponse := consensus.SendMessage(client, topicID, hashMemeMessage)
 
+			// Display txResponse
+			fmt.Println(txResponse)
+			displayMessage := fmt.Sprintf("TextContent: %s\nHash:%s\n", textContent, imageSha256)
+			dialog.ShowInformation("Result", displayMessage, w)
 		},
 	}
 

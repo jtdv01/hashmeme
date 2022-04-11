@@ -53,7 +53,6 @@ func SendMessage(client *hedera.Client, topicIDString string, content string) he
 
 	//Create the transaction
 	transaction := hedera.NewTopicMessageSubmitTransaction().
-		SetTransactionMemo(content).
 		SetTopicID(topicID).
 		SetMessage([]byte(content))
 
