@@ -5,6 +5,8 @@ import (
 	"image/color"
 	"log"
 	"os"
+	"bytes"
+	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -79,7 +81,11 @@ func main() {
 			{Text: "Path to image:", Widget: widgetPathToImage},
 		},
 		OnSubmit: func() {
-			topicID := widgetTopicID.Text
+			client := consensus.CreateClient(operatorID, operatorKey)
+			topicID, topicIDParseErr := hedera.TopicIDFromString(widgetTopicID.Text)
+			if topicIDParseErr != nil {
+				panic(topicIDParseErr)
+			}
 			textContent := image_processor.ReadTextFromImage(widgetPathToImage.Text)
 			imageSha256 := image_processor.HashImageSha256(widgetPathToImage.Text)
 			hashMemeMessage := consensus.NewMessage(widgetOperatorID.Text, textContent, imageSha256)
@@ -90,7 +96,8 @@ func main() {
 				Subscribe(client, func(message hedera.TopicMessage) {
 					for wait {
 						time.Sleep(4 * time.Second)
-						if string(message.Contents) == content {
+						// TODO: Change check only with imageSha256Hash
+						if string(message.Contents) == hashMemeMessage{
 							byteArray := message.Contents
 							consensusTimestamp := message.ConsensusTimestamp
 							contents := bytes.NewBuffer(byteArray).String()
