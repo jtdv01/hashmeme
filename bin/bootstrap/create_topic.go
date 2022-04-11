@@ -1,13 +1,24 @@
 package main
 
 import (
+	"os"
 	"fmt"
 	"github.com/hashgraph/hedera-sdk-go/v2"
 	"github.com/jtdv01/hashmeme/consensus"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	client := consensus.CreateClient()
+
+	godotErr := godotenv.Load()
+	if godotErr != nil {
+		panic(godotErr)
+	}
+
+	operatorID := os.Getenv("OPERATOR_ID")
+	operatorKey := os.Getenv("OPERATOR_KEY")
+
+	client := consensus.CreateClient(operatorID, operatorKey)
 
 	//Create the transaction
 	transaction := hedera.NewTopicCreateTransaction().
