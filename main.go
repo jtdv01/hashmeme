@@ -78,7 +78,7 @@ func main() {
 
 	queryForm := &widget.Form{
 		Items: []*widget.FormItem{
-			{Text: "Path to image:", Widget: widgetPathToImage},
+			{Text: "Query. Provide path to image:", Widget: widgetPathToImage},
 		},
 		OnSubmit: func() {
 			client := consensus.CreateClient(operatorID, operatorKey)
@@ -90,12 +90,12 @@ func main() {
 			imageSha256 := image_processor.HashImageSha256(widgetPathToImage.Text)
 			hashMemeMessage := consensus.NewMessage(widgetOperatorID.Text, textContent, imageSha256)
 			wait := false
+			fmt.Printf("Looking for: %s\n", hashMemeMessage)
 			_, err = hedera.NewTopicMessageQuery().
 				SetTopicID(topicID).
 				SetLimit(1).
 				Subscribe(client, func(message hedera.TopicMessage) {
 					for wait {
-						time.Sleep(4 * time.Second)
 						// TODO: Change check only with imageSha256Hash
 						if string(message.Contents) == hashMemeMessage{
 							byteArray := message.Contents
@@ -103,13 +103,16 @@ func main() {
 							contents := bytes.NewBuffer(byteArray).String()
 							fmt.Printf("Found message: %s ConsensusTimestamp: %s\n", contents, consensusTimestamp)
 							wait = false
+						} else {
+							fmt.Println("Could not find message. Waiting...")
+							time.Sleep(4 * time.Second)
 						}
 					}
 				})
 		},
 	}
 
-	text1 := canvas.NewText("Hashmeme", color.NRGBA{R: 255, G: 255, B: 255, A: 255})
+	text1 := canvas.NewText("HashMeme", color.NRGBA{R: 255, G: 255, B: 255, A: 255})
 	content := container.New(layout.NewGridLayout(2), text1, submitForm, queryForm)
 
 	w.SetContent(content)
