@@ -45,7 +45,7 @@ func NewMessage(author string, textContent string, imageSha256 string) string {
 	return string(bytes)
 }
 
-func SendMessage(client *hedera.Client, topicIDString string, content string) hedera.TransactionResponse {
+func SendMessage(client *hedera.Client, memo string, topicIDString string, content string) hedera.TransactionResponse {
 	topicID, errTopicId := hedera.TopicIDFromString(topicIDString)
 	if errTopicId != nil {
 		panic(errTopicId)
@@ -53,6 +53,7 @@ func SendMessage(client *hedera.Client, topicIDString string, content string) he
 
 	//Create the transaction
 	transaction := hedera.NewTopicMessageSubmitTransaction().
+		SetTransactionMemo(memo).
 		SetTopicID(topicID).
 		SetMessage([]byte(content))
 

@@ -13,6 +13,7 @@ import (
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
+	"github.com/hashgraph/hedera-sdk-go/v2"
 	"github.com/joho/godotenv"
 	"github.com/jtdv01/hashmeme/consensus"
 	"github.com/jtdv01/hashmeme/image_processor"
@@ -45,7 +46,7 @@ func main() {
 		widgetTopicID.SetText(os.Getenv("TOPIC_ID"))
 	}
 
-	form := &widget.Form{
+	submitForm := &widget.Form{
 		Items: []*widget.FormItem{
 			{Text: "OperatorID:", Widget: widgetOperatorID},
 			{Text: "TopicID:", Widget: widgetTopicID},
@@ -64,7 +65,7 @@ func main() {
 
 			// Send to hgraph
 			client := consensus.CreateClient(operatorID, operatorKey)
-			txResponse := consensus.SendMessage(client, topicID, hashMemeMessage)
+			txResponse := consensus.SendMessage(client, imageSha256, topicID, hashMemeMessage)
 
 			// Display txResponse
 			fmt.Println(txResponse)
@@ -73,8 +74,36 @@ func main() {
 		},
 	}
 
+	queryForm := &widget.Form{
+		Items: []*widget.FormItem{
+			{Text: "Path to image:", Widget: widgetPathToImage},
+		},
+		OnSubmit: func() {
+			topicID := widgetTopicID.Text
+			textContent := image_processor.ReadTextFromImage(widgetPathToImage.Text)
+			imageSha256 := image_processor.HashImageSha256(widgetPathToImage.Text)
+			hashMemeMessage := consensus.NewMessage(widgetOperatorID.Text, textContent, imageSha256)
+			wait := false
+			_, err = hedera.NewTopicMessageQuery().
+				SetTopicID(topicID).
+				SetLimit(1).
+				Subscribe(client, func(message hedera.TopicMessage) {
+					for wait {
+						time.Sleep(4 * time.Second)
+						if string(message.Contents) == content {
+							byteArray := message.Contents
+							consensusTimestamp := message.ConsensusTimestamp
+							contents := bytes.NewBuffer(byteArray).String()
+							fmt.Printf("Found message: %s ConsensusTimestamp: %s\n", contents, consensusTimestamp)
+							wait = false
+						}
+					}
+				})
+		},
+	}
+
 	text1 := canvas.NewText("Hashmeme", color.NRGBA{R: 255, G: 255, B: 255, A: 255})
-	content := container.New(layout.NewGridLayout(2), text1, form)
+	content := container.New(layout.NewGridLayout(2), text1, submitForm, queryForm)
 
 	w.SetContent(content)
 	w.Resize(fyne.NewSize(1200, 700))
