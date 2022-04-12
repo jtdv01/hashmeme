@@ -105,6 +105,7 @@ func main() {
 			imageSha256 := image_processor.HashImageSha256(widgetPathToImageQuery.Text)
 			hashMemeMessage := consensus.NewMessage(widgetOperatorID.Text, textContent, imageSha256)
 			memeFound := false
+			attemptsDone := false
 			fmt.Printf("Looking for: %s\n", hashMemeMessage)
 			_, err = hedera.NewTopicMessageQuery().
 				SetTopicID(topicID).
@@ -121,14 +122,17 @@ func main() {
 							log.Println(displayMessage)
 							dialog.ShowInformation("Result", displayMessage, w)
 							memeFound = true
+							attemptsDone = true
 						} else {
 							fmt.Println("Could not find message. Waiting...")
-							time.Sleep(4 * time.Second)
+							time.Sleep(2 * time.Second)
 						}
 					}
 
 				})
-			// fmt.Println()
+			if !memeFound && attemptsDone {
+		        dialog.ShowInformation("Result", "Couldn't find meme :(", w)
+			}
 		},
 	}
 
