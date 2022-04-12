@@ -1,11 +1,11 @@
 package main
 
 import (
+	// "bytes"
 	"fmt"
 	"image/color"
 	"log"
 	"os"
-	"bytes"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -21,12 +21,11 @@ import (
 	"github.com/jtdv01/hashmeme/image_processor"
 )
 
-
 func main() {
-    var NUM_QUERY_LIMIT uint64 = 1
-    var MAX_QUERY_ATTEMPTS uint64 = 3
-    var FONT_TITLE_SIZE float32 = 36
-    var FONT_SUBHEADING_SIZE float32 = 24
+	var NUM_QUERY_LIMIT uint64 = 1
+	var MAX_QUERY_ATTEMPTS uint64 = 3
+	var FONT_TITLE_SIZE float32 = 36
+	var FONT_SUBHEADING_SIZE float32 = 24
 
 	a := app.New()
 	w := a.NewWindow("Hello Future!")
@@ -56,11 +55,12 @@ func main() {
 		widgetTopicID.SetText(os.Getenv("TOPIC_ID"))
 	}
 
+	// TODO: Refactor as a separate function
 	textSubmit := canvas.NewText("Submit a new meme here", color.NRGBA{R: 255, G: 255, B: 255, A: 255})
 	textSubmit.TextSize = FONT_SUBHEADING_SIZE
 	submitForm := &widget.Form{
 		Items: []*widget.FormItem{
-		    {Text: "", Widget: textSubmit},
+			{Text: "", Widget: textSubmit},
 			{Text: "OperatorID:", Widget: widgetOperatorID},
 			{Text: "TopicID:", Widget: widgetTopicID},
 			{Text: "Path to image:", Widget: widgetPathToImage},
@@ -87,6 +87,7 @@ func main() {
 		},
 	}
 
+	// TODO: Refactor as a separate function
 	textQuery := canvas.NewText("Search the consensus records for a meme", color.NRGBA{R: 255, G: 255, B: 255, A: 255})
 	textQuery.TextSize = FONT_SUBHEADING_SIZE
 	queryForm := &widget.Form{
@@ -98,45 +99,57 @@ func main() {
 			client := consensus.CreateClient(operatorID, operatorKey)
 			topicID, topicIDParseErr := hedera.TopicIDFromString(widgetTopicID.Text)
 			if topicIDParseErr != nil {
-			    log.Fatalf("TopicID couldn't be parsed, check input %s", topicIDParseErr)
+				log.Fatalf("TopicID couldn't be parsed, check input %s", topicIDParseErr)
 			}
 			textContent := image_processor.ReadTextFromImage(widgetPathToImageQuery.Text)
 			imageSha256 := image_processor.HashImageSha256(widgetPathToImageQuery.Text)
 			hashMemeMessage := consensus.NewMessage(widgetOperatorID.Text, textContent, imageSha256)
-			wait := true
+			memeFound := false
 			fmt.Printf("Looking for: %s\n", hashMemeMessage)
 			_, err = hedera.NewTopicMessageQuery().
 				SetTopicID(topicID).
 				SetLimit(NUM_QUERY_LIMIT).
 				SetMaxAttempts(MAX_QUERY_ATTEMPTS).
 				Subscribe(client, func(message hedera.TopicMessage) {
-					for wait {
+					for !memeFound {
 						// TODO: Change check only with imageSha256Hash
-						if string(message.Contents) == hashMemeMessage{
-							byteArray := message.Contents
+						if string(message.Contents) == hashMemeMessage {
+							// byteArray := message.Contents
 							consensusTimestamp := message.ConsensusTimestamp
-							contents := bytes.NewBuffer(byteArray).String()
-							fmt.Printf("Found message: %s ConsensusTimestamp: %s\n", contents, consensusTimestamp)
-							wait = false
+							// contents := bytes.NewBuffer(byteArray).String()
+							displayMessage := fmt.Sprintf("Found meme with hash: %s\nConsensusTimestamp: %s\n", imageSha256, consensusTimestamp)
+							log.Println(displayMessage)
+							dialog.ShowInformation("Result", displayMessage, w)
+							memeFound = true
 						} else {
 							fmt.Println("Could not find message. Waiting...")
 							time.Sleep(4 * time.Second)
 						}
 					}
+
 				})
+			// fmt.Println()
 		},
 	}
 
+	// Main app layout
 	textHashMeme := canvas.NewText("HashMeme", color.NRGBA{R: 255, G: 255, B: 255, A: 255})
 	textHashMeme.TextSize = FONT_TITLE_SIZE
 	title := container.New(layout.NewCenterLayout(), textHashMeme)
+	imageResource, imageResourceLoadErr := fyne.LoadResourceFromPath("./hashmeme.png")
+	if imageResourceLoadErr != nil {
+		panic(imageResourceLoadErr)
+	}
+	imageContainer := canvas.NewImageFromResource(imageResource)
+	imageContainer.FillMode = canvas.ImageFillOriginal
 	content := container.New(layout.NewVBoxLayout(),
-	    title,
-	    layout.NewSpacer(),
-	    container.New(layout.NewPaddedLayout(), submitForm),
-	    layout.NewSpacer(),
-	    container.New(layout.NewPaddedLayout(), queryForm),
-    )
+		title,
+		imageContainer,
+		layout.NewSpacer(),
+		container.New(layout.NewPaddedLayout(), submitForm),
+		layout.NewSpacer(),
+		container.New(layout.NewPaddedLayout(), queryForm),
+	)
 
 	w.SetContent(content)
 	w.Resize(fyne.NewSize(1000, 720))
