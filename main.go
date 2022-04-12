@@ -34,6 +34,7 @@ func main() {
 	// Add some defaults
 	cwd, _ := os.Getwd()
 	widgetPathToImage.SetText(fmt.Sprintf("%s/hashmeme.png", cwd))
+	widgetPathToImageQuery.SetText(fmt.Sprintf("%s/hashmeme.png", cwd))
 	var operatorID string
 	var operatorKey string
 
@@ -50,7 +51,7 @@ func main() {
 	}
 
 	textSubmit := canvas.NewText("Submit a new meme here", color.NRGBA{R: 255, G: 255, B: 255, A: 255})
-	textSubmit.TextSize = 36
+	textSubmit.TextSize = 24
 	submitForm := &widget.Form{
 		Items: []*widget.FormItem{
 		    {Text: "", Widget: textSubmit},
@@ -81,11 +82,11 @@ func main() {
 	}
 
 	textQuery := canvas.NewText("Search the consensus records for a meme", color.NRGBA{R: 255, G: 255, B: 255, A: 255})
-	textQuery.TextSize = 36
+	textQuery.TextSize = 24
 	queryForm := &widget.Form{
 		Items: []*widget.FormItem{
 			{Text: "", Widget: textQuery},
-			{Text: "Provide path to image to query:", Widget: widgetPathToImageQuery},
+			{Text: "Path to image:", Widget: widgetPathToImageQuery},
 		},
 		OnSubmit: func() {
 			client := consensus.CreateClient(operatorID, operatorKey)
@@ -120,9 +121,15 @@ func main() {
 	}
 
 	textHashMeme := canvas.NewText("HashMeme", color.NRGBA{R: 255, G: 255, B: 255, A: 255})
-	textHashMeme.TextSize = 48
+	textHashMeme.TextSize = 36
 	title := container.New(layout.NewCenterLayout(), textHashMeme)
-	content := container.New(layout.NewVBoxLayout(), title, layout.NewSpacer(), submitForm, layout.NewSpacer(), queryForm)
+	content := container.New(layout.NewVBoxLayout(),
+	    title,
+	    layout.NewSpacer(),
+	    container.New(layout.NewPaddedLayout(), submitForm),
+	    layout.NewSpacer(),
+	    container.New(layout.NewPaddedLayout(), queryForm),
+    )
 
 	w.SetContent(content)
 	w.Resize(fyne.NewSize(1000, 720))
