@@ -28,6 +28,7 @@ func main() {
 	widgetOperatorID := widget.NewEntry()
 	widgetTopicID := widget.NewEntry()
 	widgetPathToImage := widget.NewMultiLineEntry()
+	widgetPathToImageQuery := widget.NewMultiLineEntry()
 	widgetOperatorKey := widget.NewPasswordEntry()
 
 	// Add some defaults
@@ -48,8 +49,11 @@ func main() {
 		widgetTopicID.SetText(os.Getenv("TOPIC_ID"))
 	}
 
+	textSubmit := canvas.NewText("Submit a new meme here", color.NRGBA{R: 255, G: 255, B: 255, A: 255})
+	textSubmit.TextSize = 36
 	submitForm := &widget.Form{
 		Items: []*widget.FormItem{
+		    {Text: "", Widget: textSubmit},
 			{Text: "OperatorID:", Widget: widgetOperatorID},
 			{Text: "TopicID:", Widget: widgetTopicID},
 			{Text: "Path to image:", Widget: widgetPathToImage},
@@ -76,9 +80,12 @@ func main() {
 		},
 	}
 
+	textQuery := canvas.NewText("Search the consensus records for a meme", color.NRGBA{R: 255, G: 255, B: 255, A: 255})
+	textQuery.TextSize = 36
 	queryForm := &widget.Form{
 		Items: []*widget.FormItem{
-			{Text: "Query. Provide path to image:", Widget: widgetPathToImage},
+			{Text: "", Widget: textQuery},
+			{Text: "Provide path to image to query:", Widget: widgetPathToImageQuery},
 		},
 		OnSubmit: func() {
 			client := consensus.CreateClient(operatorID, operatorKey)
@@ -112,10 +119,12 @@ func main() {
 		},
 	}
 
-	text1 := canvas.NewText("HashMeme", color.NRGBA{R: 255, G: 255, B: 255, A: 255})
-	content := container.New(layout.NewGridLayout(2), text1, submitForm, queryForm)
+	textHashMeme := canvas.NewText("HashMeme", color.NRGBA{R: 255, G: 255, B: 255, A: 255})
+	textHashMeme.TextSize = 48
+	title := container.New(layout.NewCenterLayout(), textHashMeme)
+	content := container.New(layout.NewVBoxLayout(), title, layout.NewSpacer(), submitForm, layout.NewSpacer(), queryForm)
 
 	w.SetContent(content)
-	w.Resize(fyne.NewSize(1200, 700))
+	w.Resize(fyne.NewSize(1000, 720))
 	w.ShowAndRun()
 }
