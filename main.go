@@ -21,7 +21,13 @@ import (
 	"github.com/jtdv01/hashmeme/image_processor"
 )
 
+
 func main() {
+    var NUM_QUERY_LIMIT uint64 = 1
+    var MAX_QUERY_ATTEMPTS uint64 = 3
+    var FONT_TITLE_SIZE float32 = 36
+    var FONT_SUBHEADING_SIZE float32 = 24
+
 	a := app.New()
 	w := a.NewWindow("Hello Future!")
 
@@ -51,7 +57,7 @@ func main() {
 	}
 
 	textSubmit := canvas.NewText("Submit a new meme here", color.NRGBA{R: 255, G: 255, B: 255, A: 255})
-	textSubmit.TextSize = 24
+	textSubmit.TextSize = FONT_SUBHEADING_SIZE
 	submitForm := &widget.Form{
 		Items: []*widget.FormItem{
 		    {Text: "", Widget: textSubmit},
@@ -82,7 +88,7 @@ func main() {
 	}
 
 	textQuery := canvas.NewText("Search the consensus records for a meme", color.NRGBA{R: 255, G: 255, B: 255, A: 255})
-	textQuery.TextSize = 24
+	textQuery.TextSize = FONT_SUBHEADING_SIZE
 	queryForm := &widget.Form{
 		Items: []*widget.FormItem{
 			{Text: "", Widget: textQuery},
@@ -92,16 +98,17 @@ func main() {
 			client := consensus.CreateClient(operatorID, operatorKey)
 			topicID, topicIDParseErr := hedera.TopicIDFromString(widgetTopicID.Text)
 			if topicIDParseErr != nil {
-				panic(topicIDParseErr)
+			    log.Fatalf("TopicID couldn't be parsed, check input %s", topicIDParseErr)
 			}
-			textContent := image_processor.ReadTextFromImage(widgetPathToImage.Text)
-			imageSha256 := image_processor.HashImageSha256(widgetPathToImage.Text)
+			textContent := image_processor.ReadTextFromImage(widgetPathToImageQuery.Text)
+			imageSha256 := image_processor.HashImageSha256(widgetPathToImageQuery.Text)
 			hashMemeMessage := consensus.NewMessage(widgetOperatorID.Text, textContent, imageSha256)
-			wait := false
+			wait := true
 			fmt.Printf("Looking for: %s\n", hashMemeMessage)
 			_, err = hedera.NewTopicMessageQuery().
 				SetTopicID(topicID).
-				SetLimit(1).
+				SetLimit(NUM_QUERY_LIMIT).
+				SetMaxAttempts(MAX_QUERY_ATTEMPTS).
 				Subscribe(client, func(message hedera.TopicMessage) {
 					for wait {
 						// TODO: Change check only with imageSha256Hash
@@ -121,7 +128,7 @@ func main() {
 	}
 
 	textHashMeme := canvas.NewText("HashMeme", color.NRGBA{R: 255, G: 255, B: 255, A: 255})
-	textHashMeme.TextSize = 36
+	textHashMeme.TextSize = FONT_TITLE_SIZE
 	title := container.New(layout.NewCenterLayout(), textHashMeme)
 	content := container.New(layout.NewVBoxLayout(),
 	    title,
