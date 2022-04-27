@@ -22,24 +22,52 @@ import (
 )
 
 func main() {
-	var NUM_QUERY_LIMIT uint64 = 1
-	var MAX_QUERY_ATTEMPTS uint64 = 3
-	var FONT_TITLE_SIZE float32 = 36
-	var FONT_SUBHEADING_SIZE float32 = 24
 
 	a := app.New()
 	w := a.NewWindow("Hello Future!")
 
+	tabMain := createMainTab()
+	tabSubmit, tabQuery := createSubmitTabs(w)
+
+	// Create tabs
+	tabs := container.NewAppTabs(
+		tabMain,
+		tabSubmit,
+		tabQuery,
+	)
+	tabs.SetTabLocation(container.TabLocationLeading)
+
+	// Set content
+	w.SetContent(tabs)
+	w.Resize(fyne.NewSize(600, 600*2.2222))
+	w.ShowAndRun()
+}
+
+func createMainTab() *container.TabItem {
+	var FONT_TITLE_SIZE float32 = 36
+	textHashMeme := canvas.NewText("HashMeme", color.NRGBA{R: 255, G: 255, B: 255, A: 255})
+	textHashMeme.TextSize = FONT_TITLE_SIZE
+	title := container.New(layout.NewCenterLayout(), textHashMeme)
+	imageResource, imageResourceLoadErr := fyne.LoadResourceFromPath("./hashmeme.png")
+	if imageResourceLoadErr != nil {
+		panic(imageResourceLoadErr)
+	}
+	imageContainer := canvas.NewImageFromResource(imageResource)
+	imageContainer.FillMode = canvas.ImageFillOriginal
+	mainContainer := container.New(layout.NewVBoxLayout(), title, imageContainer)
+	return container.NewTabItem("Main menu", mainContainer)
+}
+
+func createSubmitTabs(w fyne.Window) (*container.TabItem, *container.TabItem) {
+	var FONT_SUBHEADING_SIZE float32 = 24
 	widgetOperatorID := widget.NewEntry()
 	widgetTopicID := widget.NewEntry()
 	widgetPathToImage := widget.NewMultiLineEntry()
-	widgetPathToImageQuery := widget.NewMultiLineEntry()
 	widgetOperatorKey := widget.NewPasswordEntry()
 
 	// Add some defaults
 	cwd, _ := os.Getwd()
 	widgetPathToImage.SetText(fmt.Sprintf("%s/hashmeme.png", cwd))
-	widgetPathToImageQuery.SetText(fmt.Sprintf("%s/hashmeme.png", cwd))
 	var operatorID string
 	var operatorKey string
 
@@ -55,7 +83,7 @@ func main() {
 		widgetTopicID.SetText(os.Getenv("TOPIC_ID"))
 	}
 
-	// TODO: Refactor as a separate function
+	// Submit form
 	textSubmit := canvas.NewText("Submit a new meme here", color.NRGBA{R: 255, G: 255, B: 255, A: 255})
 	textSubmit.TextSize = FONT_SUBHEADING_SIZE
 	submitForm := &widget.Form{
@@ -87,7 +115,12 @@ func main() {
 		},
 	}
 
-	// TODO: Refactor as a separate function
+	// Query form
+	var NUM_QUERY_LIMIT uint64 = 1
+	var MAX_QUERY_ATTEMPTS uint64 = 3
+	widgetPathToImageQuery := widget.NewMultiLineEntry()
+	widgetPathToImageQuery.SetText(fmt.Sprintf("%s/hashmeme.png", cwd))
+
 	textQuery := canvas.NewText("Search the consensus records for a meme", color.NRGBA{R: 255, G: 255, B: 255, A: 255})
 	textQuery.TextSize = FONT_SUBHEADING_SIZE
 	queryForm := &widget.Form{
@@ -131,35 +164,11 @@ func main() {
 
 				})
 			if !memeFound && attemptsDone {
-		        dialog.ShowInformation("Result", "Couldn't find meme :(", w)
+				dialog.ShowInformation("Result", "Couldn't find meme :(", w)
 			}
 		},
 	}
-
-	// Main app layout
-	textHashMeme := canvas.NewText("HashMeme", color.NRGBA{R: 255, G: 255, B: 255, A: 255})
-	textHashMeme.TextSize = FONT_TITLE_SIZE
-	title := container.New(layout.NewCenterLayout(), textHashMeme)
-	imageResource, imageResourceLoadErr := fyne.LoadResourceFromPath("./hashmeme.png")
-	if imageResourceLoadErr != nil {
-		panic(imageResourceLoadErr)
-	}
-	imageContainer := canvas.NewImageFromResource(imageResource)
-	imageContainer.FillMode = canvas.ImageFillOriginal
-
-    mainContainer := container.New(layout.NewVBoxLayout(), title, imageContainer)
-    tabMain := container.NewTabItem("Main menu", mainContainer)
 	tabSubmit := container.NewTabItem("Submit a new meme", submitForm)
 	tabQuery := container.NewTabItem("Query meme", queryForm)
-
-	tabs := container.NewAppTabs(
-	    tabMain,
-        tabSubmit,
-        tabQuery,
-	)
-
-	tabs.SetTabLocation(container.TabLocationLeading)
-	w.SetContent(tabs)
-	w.Resize(fyne.NewSize(600, 600*2.2222))
-	w.ShowAndRun()
+	return tabSubmit, tabQuery
 }
