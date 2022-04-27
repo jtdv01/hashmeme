@@ -1,7 +1,6 @@
 package main
 
 import (
-	// "bytes"
 	"fmt"
 	"image/color"
 	"log"
