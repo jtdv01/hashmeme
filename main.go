@@ -146,16 +146,20 @@ func main() {
 	}
 	imageContainer := canvas.NewImageFromResource(imageResource)
 	imageContainer.FillMode = canvas.ImageFillOriginal
-	content := container.New(layout.NewVBoxLayout(),
-		title,
-		imageContainer,
-		layout.NewSpacer(),
-		container.New(layout.NewPaddedLayout(), submitForm),
-		layout.NewSpacer(),
-		container.New(layout.NewPaddedLayout(), queryForm),
+
+    mainContainer := container.New(layout.NewVBoxLayout(), title, imageContainer)
+    tabMain := container.NewTabItem("Main menu", mainContainer)
+	tabSubmit := container.NewTabItem("Submit a new meme", submitForm)
+	tabQuery := container.NewTabItem("Query meme", queryForm)
+
+	tabs := container.NewAppTabs(
+	    tabMain,
+        tabSubmit,
+        tabQuery,
 	)
 
-	w.SetContent(content)
-	w.Resize(fyne.NewSize(1000, 720))
+	tabs.SetTabLocation(container.TabLocationLeading)
+	w.SetContent(tabs)
+	w.Resize(fyne.NewSize(600, 600*2.2222))
 	w.ShowAndRun()
 }
