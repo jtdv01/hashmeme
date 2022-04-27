@@ -6,3 +6,12 @@ node_modules
 target
 
 *#*
+
+fyne
+
+*tar.xz
+*.exe
+*.apk
+*.app
+
+tmp-pkg
