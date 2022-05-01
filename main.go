@@ -23,11 +23,11 @@ import (
 
 func main() {
 
-	a := app.New()
-	w := a.NewWindow("Hello Future!")
+	application := app.New()
+	window := application.NewWindow("Hello Future!")
 
 	tabMain := createMainTab()
-	tabSubmit, tabQuery := createSubmitTabs(w)
+	tabSubmit, tabQuery := createSubmitTabs(window)
 
 	// Create tabs
 	tabs := container.NewAppTabs(
@@ -38,9 +38,9 @@ func main() {
 	tabs.SetTabLocation(container.TabLocationLeading)
 
 	// Set content
-	w.SetContent(tabs)
-	w.Resize(fyne.NewSize(600, 600*2.2222))
-	w.ShowAndRun()
+	window.SetContent(tabs)
+	window.Resize(fyne.NewSize(600, 600*2.2222))
+	window.ShowAndRun()
 }
 
 func createMainTab() *container.TabItem {
@@ -58,7 +58,7 @@ func createMainTab() *container.TabItem {
 	return container.NewTabItem("Main menu", mainContainer)
 }
 
-func createSubmitTabs(w fyne.Window) (*container.TabItem, *container.TabItem) {
+func createSubmitTabs(window fyne.Window) (*container.TabItem, *container.TabItem) {
 	var FONT_SUBHEADING_SIZE float32 = 24
 	widgetOperatorID := widget.NewEntry()
 	widgetTopicID := widget.NewEntry()
@@ -94,24 +94,8 @@ func createSubmitTabs(w fyne.Window) (*container.TabItem, *container.TabItem) {
 			{Text: "Path to image:", Widget: widgetPathToImage},
 			{Text: "OperatorKey:", Widget: widgetOperatorKey},
 		},
-		OnSubmit: func() { // optional, handle form submission
-			log.Println("Form submitted:", widgetPathToImage.Text)
-			textContent := image_processor.ReadTextFromImage(widgetPathToImage.Text)
-			imageSha256 := image_processor.HashImageSha256(widgetPathToImage.Text)
-			topicID := widgetTopicID.Text
-			hashMemeMessage := consensus.NewMessage(widgetOperatorID.Text, textContent, imageSha256)
-
-			operatorID = widgetOperatorID.Text
-			operatorKey = widgetOperatorKey.Text
-
-			// Send to hgraph
-			client := consensus.CreateClient(operatorID, operatorKey)
-			txResponse := consensus.SendMessage(client, imageSha256, topicID, hashMemeMessage)
-
-			// Display txResponse
-			fmt.Println(txResponse)
-			displayMessage := fmt.Sprintf("TextContent: %s\nHash:%s\n", textContent, imageSha256)
-			dialog.ShowInformation("Result", displayMessage, w)
+		OnSubmit: func() {
+			onSubmitForm(widgetPathToImage.Text, widgetTopicID.Text, widgetOperatorID.Text, widgetOperatorKey.Text, window)
 		},
 	}
 
@@ -127,7 +111,7 @@ func createSubmitTabs(w fyne.Window) (*container.TabItem, *container.TabItem) {
 			{Text: "Path to image:", Widget: widgetPathToImageQuery},
 		},
 		OnSubmit: func() {
-			onSubmitQueryForm(widgetTopicID.Text, widgetPathToImageQuery.Text, widgetOperatorID.Text, widgetOperatorKey.Text, w)
+			onSubmitQueryForm(widgetTopicID.Text, widgetPathToImageQuery.Text, widgetOperatorID.Text, widgetOperatorKey.Text, window)
 		},
 	}
 	tabSubmit := container.NewTabItem("Submit a new meme", submitForm)
@@ -135,7 +119,26 @@ func createSubmitTabs(w fyne.Window) (*container.TabItem, *container.TabItem) {
 	return tabSubmit, tabQuery
 }
 
-func onSubmitQueryForm(topicIDText string, pathToImage string, operatorID string, operatorKey string, w fyne.Window) {
+func onSubmitForm(pathToImage string, topicID string, operatorID string, operatorKey string, window fyne.Window) {
+	log.Println("Form submitted:", pathToImage)
+	textContent := image_processor.ReadTextFromImage(pathToImage)
+	imageSha256 := image_processor.HashImageSha256(pathToImage)
+	hashMemeMessage := consensus.NewMessage(operatorID, textContent, imageSha256)
+
+	operatorID = operatorID
+	operatorKey = operatorKey
+
+	// Send to hgraph
+	client := consensus.CreateClient(operatorID, operatorKey)
+	txResponse := consensus.SendMessage(client, imageSha256, topicID, hashMemeMessage)
+
+	// Display txResponse
+	fmt.Println(txResponse)
+	displayMessage := fmt.Sprintf("Meme submitted!\nImageSha256: %s\nAuthor: %s\nTextContent: %s", imageSha256, operatorID, textContent)
+	dialog.ShowInformation("Result", displayMessage, window)
+}
+
+func onSubmitQueryForm(topicIDText string, pathToImage string, operatorID string, operatorKey string, window fyne.Window) {
 	var NUM_QUERY_LIMIT uint64 = 1
 	var MAX_QUERY_ATTEMPTS uint64 = 3
 	client := consensus.CreateClient(operatorID, operatorKey)
@@ -163,7 +166,7 @@ func onSubmitQueryForm(topicIDText string, pathToImage string, operatorID string
 					consensusTimestamp := message.ConsensusTimestamp
 					displayMessage := fmt.Sprintf("Found meme with hash: %s\nAuthor: %s\nTextContent: %s\nConsensusTimestamp: %s", imageSha256, receivedMessage.Author, receivedMessage.TextContent, consensusTimestamp)
 					log.Println(displayMessage)
-					dialog.ShowInformation("Result", displayMessage, w)
+					dialog.ShowInformation("Result", displayMessage, window)
 					memeFound = true
 					attemptsDone = true
 				} else {
@@ -174,7 +177,7 @@ func onSubmitQueryForm(topicIDText string, pathToImage string, operatorID string
 
 		})
 	if !memeFound && attemptsDone {
-		dialog.ShowInformation("Result", "Couldn't find meme :(", w)
+		dialog.ShowInformation("Result", "Couldn't find meme :(", window)
 	}
 
 }
