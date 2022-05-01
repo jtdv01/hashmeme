@@ -90,4 +90,5 @@ Some design decisions were taken that can be answered by the following:
 
 ### Ok this is silly isn't it?
 * Yeah, it is mostly for the lols, but it's a proof of concept of what you can do with the consensus service.
-* There is a widespread problem of misinformation out there and there is a greater need for verifying facts out there.
+* There is a widespread problem of misinformation and fact checking out there.
+* This use case can be extended for verifying facts in the real world.

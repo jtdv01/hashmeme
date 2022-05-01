@@ -115,8 +115,6 @@ func createSubmitTabs(w fyne.Window) (*container.TabItem, *container.TabItem) {
 	}
 
 	// Query form
-	var NUM_QUERY_LIMIT uint64 = 1
-	var MAX_QUERY_ATTEMPTS uint64 = 3
 	widgetPathToImageQuery := widget.NewMultiLineEntry()
 	widgetPathToImageQuery.SetText(fmt.Sprintf("%s/hashmeme.png", cwd))
 
@@ -128,46 +126,53 @@ func createSubmitTabs(w fyne.Window) (*container.TabItem, *container.TabItem) {
 			{Text: "Path to image:", Widget: widgetPathToImageQuery},
 		},
 		OnSubmit: func() {
-			client := consensus.CreateClient(operatorID, operatorKey)
-			topicID, topicIDParseErr := hedera.TopicIDFromString(widgetTopicID.Text)
-			if topicIDParseErr != nil {
-				log.Fatalf("TopicID couldn't be parsed, check input %s", topicIDParseErr)
-			}
-			textContent := image_processor.ReadTextFromImage(widgetPathToImageQuery.Text)
-			imageSha256 := image_processor.HashImageSha256(widgetPathToImageQuery.Text)
-			hashMemeMessage := consensus.NewMessage(widgetOperatorID.Text, textContent, imageSha256)
-			memeFound := false
-			attemptsDone := false
-			fmt.Printf("Looking for: %s\n", hashMemeMessage)
-			_, err = hedera.NewTopicMessageQuery().
-				SetTopicID(topicID).
-				SetLimit(NUM_QUERY_LIMIT).
-				SetMaxAttempts(MAX_QUERY_ATTEMPTS).
-				Subscribe(client, func(message hedera.TopicMessage) {
-					for !memeFound {
-						// TODO: Change check only with imageSha256Hash
-						if string(message.Contents) == hashMemeMessage {
-							// byteArray := message.Contents
-							consensusTimestamp := message.ConsensusTimestamp
-							// contents := bytes.NewBuffer(byteArray).String()
-							displayMessage := fmt.Sprintf("Found meme with hash: %s\nConsensusTimestamp: %s\n", imageSha256, consensusTimestamp)
-							log.Println(displayMessage)
-							dialog.ShowInformation("Result", displayMessage, w)
-							memeFound = true
-							attemptsDone = true
-						} else {
-							fmt.Println("Could not find message. Waiting...")
-							time.Sleep(2 * time.Second)
-						}
-					}
-
-				})
-			if !memeFound && attemptsDone {
-				dialog.ShowInformation("Result", "Couldn't find meme :(", w)
-			}
+			onSubmitQueryForm(widgetTopicID.Text, widgetPathToImageQuery.Text, widgetOperatorID.Text, widgetOperatorKey.Text, w)
 		},
 	}
 	tabSubmit := container.NewTabItem("Submit a new meme", submitForm)
 	tabQuery := container.NewTabItem("Query meme", queryForm)
 	return tabSubmit, tabQuery
+}
+
+func onSubmitQueryForm(topicIDText string, pathToImage string, operatorID string, operatorKey string, w fyne.Window) {
+  var NUM_QUERY_LIMIT uint64 = 1
+  var MAX_QUERY_ATTEMPTS uint64 = 3
+  client := consensus.CreateClient(operatorID, operatorKey)
+  topicID, topicIDParseErr := hedera.TopicIDFromString(topicIDText)
+  if topicIDParseErr != nil {
+	  log.Fatalf("TopicID couldn't be parsed, check input %s", topicIDParseErr)
+  }
+  textContent := image_processor.ReadTextFromImage(pathToImage)
+  imageSha256 := image_processor.HashImageSha256(pathToImage)
+  hashMemeMessage := consensus.NewMessage(operatorID, textContent, imageSha256)
+  memeFound := false
+  attemptsDone := false
+  fmt.Printf("Looking for: %s\n", hashMemeMessage)
+  _, _ = hedera.NewTopicMessageQuery().
+	  SetTopicID(topicID).
+	  SetLimit(NUM_QUERY_LIMIT).
+	  SetMaxAttempts(MAX_QUERY_ATTEMPTS).
+	  Subscribe(client, func(message hedera.TopicMessage) {
+		  for !memeFound {
+			  // TODO: Change check only with imageSha256Hash
+			  if string(message.Contents) == hashMemeMessage {
+				  // byteArray := message.Contents
+				  consensusTimestamp := message.ConsensusTimestamp
+				  // contents := bytes.NewBuffer(byteArray).String()
+				  displayMessage := fmt.Sprintf("Found meme with hash: %s\nConsensusTimestamp: %s\n", imageSha256, consensusTimestamp)
+				  log.Println(displayMessage)
+				  dialog.ShowInformation("Result", displayMessage, w)
+				  memeFound = true
+				  attemptsDone = true
+			  } else {
+				  fmt.Println("Could not find message. Waiting...")
+				  time.Sleep(2 * time.Second)
+			  }
+		  }
+
+	  })
+  if !memeFound && attemptsDone {
+	  dialog.ShowInformation("Result", "Couldn't find meme :(", w)
+  }
+
 }
