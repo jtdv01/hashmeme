@@ -18,19 +18,19 @@ import (
 	"strings"
 )
 
-func ReadImageFile(inputFile string) image.Image {
-	image, err := os.Open(inputFile)
-	if err != nil {
-		log.Fatalf("Failed to open: %s", err)
+func ReadImageFile(inputFile string) (image.Image, error, error) {
+	image, readImageErr := os.Open(inputFile)
+	if readImageErr != nil {
+		log.Printf("Failed to open: %s", readImageErr)
 	}
 	defer image.Close()
 
-	decoded, err := png.Decode(image)
-	if err != nil {
-		log.Fatalf("Failed to decode: %s", err)
+	decoded, decodeErr := png.Decode(image)
+	if decodeErr != nil {
+		log.Printf("Failed to decode: %s", decodeErr)
 	}
 
-	return decoded
+	return decoded, readImageErr, decodeErr
 }
 
 func WriteImageToFile(outImagePath string, outImage image.Image) {
@@ -92,7 +92,7 @@ func ReadTextFromImage(inputImagePath string) string {
 	pwd, _ := os.Getwd()
 
 	// Convert to greyscale
-	img := ReadImageFile(inputImagePath)
+	img, _, _ := ReadImageFile(inputImagePath)
 	grey := FilterOutNonText(img)
 	tmpOutputForFilteredText := fmt.Sprintf("%s/tmp/text_filtered.png", pwd)
 	WriteImageToFile(tmpOutputForFilteredText, grey)
@@ -101,14 +101,14 @@ func ReadTextFromImage(inputImagePath string) string {
 	client := gosseract.NewClient()
 	err := client.SetConfigFile(fmt.Sprintf("%s/tesseract.ini", pwd))
 	if err != nil {
-		log.Fatalf("Failed to load config %s", err)
+		log.Printf("Failed to load config %s", err)
 	}
 	defer client.Close()
 
 	client.SetImage(tmpOutputForFilteredText)
 	text, err := client.Text()
 	if err != nil {
-		log.Fatalf("Failed to read text: %s", err)
+		log.Printf("Failed to read text: %s", err)
 	}
 
 	// Normalize spaces
@@ -119,13 +119,13 @@ func ReadTextFromImage(inputImagePath string) string {
 	return out
 }
 
-func HashImageSha256(inputImagePath string) string {
+func HashImageSha256(inputImagePath string) (string, error) {
 	data, err := ioutil.ReadFile(inputImagePath)
 	if err != nil {
-		panic(err)
+		log.Printf("Can't read file %s", err)
 	}
 	h := sha256.New()
 	h.Write(data)
 	sha256Hash := hex.EncodeToString(h.Sum(nil))
-	return sha256Hash
+	return sha256Hash, err
 }
