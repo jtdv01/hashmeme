@@ -13,26 +13,26 @@ type HashMemeMessage struct {
 	ImageSha256 string
 }
 
-func CreateClient(_operatorID string, _operatorKey string) *hedera.Client {
+func CreateClient(_operatorID string, _operatorKey string) (*hedera.Client, error, error) {
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatalf("Unable to load environment variables from .env file. Error:\n%s\n", err)
 	}
 
-	operatorAccountID, err := hedera.AccountIDFromString(_operatorID)
-	if err != nil {
-		panic(err)
+	operatorAccountID, readOperatorIDErr := hedera.AccountIDFromString(_operatorID)
+	if readOperatorIDErr != nil {
+		panic(readOperatorIDErr)
 	}
 
-	operatorKey, err := hedera.PrivateKeyFromString(_operatorKey)
-	if err != nil {
-		panic(err)
+	operatorKey, readOperatorKeyErr := hedera.PrivateKeyFromString(_operatorKey)
+	if readOperatorKeyErr != nil {
+		panic(readOperatorKeyErr)
 	}
 
 	client := hedera.ClientForTestnet()
 	client.SetOperator(operatorAccountID, operatorKey)
 
-	return client
+	return client, readOperatorIDErr, readOperatorKeyErr
 }
 
 func NewMessage(author string, textContent string, imageSha256 string) string {

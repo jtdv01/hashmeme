@@ -44,7 +44,6 @@ func main() {
 }
 
 func createMainTab() *container.TabItem {
-	var FONT_TITLE_SIZE float32 = 36
 	textHashMeme := canvas.NewText("HashMeme", color.NRGBA{R: 255, G: 255, B: 255, A: 255})
 	textHashMeme.TextSize = FONT_TITLE_SIZE
 	title := container.New(layout.NewCenterLayout(), textHashMeme)
@@ -59,7 +58,6 @@ func createMainTab() *container.TabItem {
 }
 
 func createSubmitTabs(window fyne.Window) (*container.TabItem, *container.TabItem) {
-	var FONT_SUBHEADING_SIZE float32 = 24
 	widgetOperatorID := widget.NewEntry()
 	widgetTopicID := widget.NewEntry()
 	widgetPathToImage := widget.NewMultiLineEntry()
@@ -121,63 +119,75 @@ func createSubmitTabs(window fyne.Window) (*container.TabItem, *container.TabIte
 
 func onSubmitForm(pathToImage string, topicID string, operatorID string, operatorKey string, window fyne.Window) {
 	log.Println("Form submitted:", pathToImage)
-	textContent := image_processor.ReadTextFromImage(pathToImage)
-	imageSha256 := image_processor.HashImageSha256(pathToImage)
-	hashMemeMessage := consensus.NewMessage(operatorID, textContent, imageSha256)
+	imageSha256, err := image_processor.HashImageSha256(pathToImage)
+	if err != nil {
+		dialog.ShowInformation("Error", fmt.Sprintf("Can't read image %s", err), window)
+	} else {
+		textContent, _ := image_processor.ReadTextFromImage(pathToImage)
+		hashMemeMessage := consensus.NewMessage(operatorID, textContent, imageSha256)
 
-	operatorID = operatorID
-	operatorKey = operatorKey
+		operatorID = operatorID
+		operatorKey = operatorKey
 
-	// Send to hgraph
-	client := consensus.CreateClient(operatorID, operatorKey)
-	txResponse := consensus.SendMessage(client, imageSha256, topicID, hashMemeMessage)
-
-	// Display txResponse
-	fmt.Println(txResponse)
-	displayMessage := fmt.Sprintf("Meme submitted!\nImageSha256: %s\nAuthor: %s\nTextContent: %s", imageSha256, operatorID, textContent)
-	dialog.ShowInformation("Result", displayMessage, window)
+		// Send to hgraph
+		client, readOperatorIDErr, readOperatorKeyErr := consensus.CreateClient(operatorID, operatorKey)
+		if readOperatorIDErr != nil || readOperatorKeyErr != nil {
+			errorMessage := fmt.Sprintf("%s\n%s", readOperatorIDErr, readOperatorKeyErr)
+			dialog.ShowInformation("Error", errorMessage, window)
+		} else {
+			txResponse := consensus.SendMessage(client, imageSha256, topicID, hashMemeMessage)
+			// Display txResponse
+			fmt.Println(txResponse)
+			displayMessage := fmt.Sprintf("Meme submitted!\nImageSha256: %s\nAuthor: %s\nTextContent: %s", imageSha256, operatorID, textContent)
+			dialog.ShowInformation("Result", displayMessage, window)
+		}
+	}
 }
 
 func onSubmitQueryForm(topicIDText string, pathToImage string, operatorID string, operatorKey string, window fyne.Window) {
-	var NUM_QUERY_LIMIT uint64 = 1
-	var MAX_QUERY_ATTEMPTS uint64 = 3
-	client := consensus.CreateClient(operatorID, operatorKey)
+	client, _, _ := consensus.CreateClient(operatorID, operatorKey)
 	topicID, topicIDParseErr := hedera.TopicIDFromString(topicIDText)
 	if topicIDParseErr != nil {
-		log.Fatalf("TopicID couldn't be parsed, check input %s", topicIDParseErr)
-	}
-	imageSha256 := image_processor.HashImageSha256(pathToImage)
-	memeFound := false
-	attemptsDone := false
-	fmt.Printf("Looking for: %s\n", imageSha256)
-	_, _ = hedera.NewTopicMessageQuery().
-		SetTopicID(topicID).
-		SetLimit(NUM_QUERY_LIMIT).
-		SetMaxAttempts(MAX_QUERY_ATTEMPTS).
-		Subscribe(client, func(message hedera.TopicMessage) {
-			for !memeFound {
-				var receivedMessage consensus.HashMemeMessage
-				errMarshal := json.Unmarshal(message.Contents, &receivedMessage)
-				if errMarshal != nil {
-					log.Println(errMarshal)
-				}
-
-				if receivedMessage.ImageSha256 == imageSha256 {
-					consensusTimestamp := message.ConsensusTimestamp
-					displayMessage := fmt.Sprintf("Found meme with hash: %s\nAuthor: %s\nTextContent: %s\nConsensusTimestamp: %s", imageSha256, receivedMessage.Author, receivedMessage.TextContent, consensusTimestamp)
-					log.Println(displayMessage)
-					dialog.ShowInformation("Result", displayMessage, window)
-					memeFound = true
-					attemptsDone = true
-				} else {
-					fmt.Println("Could not find message. Waiting...")
-					time.Sleep(2 * time.Second)
-				}
-			}
-
-		})
-	if !memeFound && attemptsDone {
 		dialog.ShowInformation("Result", "Couldn't find meme :(", window)
+	} else {
+		imageSha256, err := image_processor.HashImageSha256(pathToImage)
+
+		if err != nil {
+			dialog.ShowInformation("Error", fmt.Sprintf("Can't read image %s", err), window)
+		}
+
+		memeFound := false
+		attemptsDone := false
+		fmt.Printf("Looking for: %s\n", imageSha256)
+		_, _ = hedera.NewTopicMessageQuery().
+			SetTopicID(topicID).
+			SetLimit(NUM_QUERY_LIMIT).
+			SetMaxAttempts(MAX_QUERY_ATTEMPTS).
+			Subscribe(client, func(message hedera.TopicMessage) {
+				for !memeFound {
+					var receivedMessage consensus.HashMemeMessage
+					errMarshal := json.Unmarshal(message.Contents, &receivedMessage)
+					if errMarshal != nil {
+						log.Println(errMarshal)
+					}
+
+					if receivedMessage.ImageSha256 == imageSha256 {
+						consensusTimestamp := message.ConsensusTimestamp
+						displayMessage := fmt.Sprintf("Found meme with hash: %s\nAuthor: %s\nTextContent: %s\nConsensusTimestamp: %s", imageSha256, receivedMessage.Author, receivedMessage.TextContent, consensusTimestamp)
+						log.Println(displayMessage)
+						dialog.ShowInformation("Result", displayMessage, window)
+						memeFound = true
+						attemptsDone = true
+					} else {
+						fmt.Println("Could not find message. Waiting...")
+						time.Sleep(2 * time.Second)
+					}
+				}
+
+			})
+		if !memeFound && attemptsDone {
+			dialog.ShowInformation("Result", "Couldn't find meme :(", window)
+		}
 	}
 
 }
