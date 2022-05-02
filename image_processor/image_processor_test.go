@@ -7,20 +7,20 @@ import (
 
 func TestImageProcessor(t *testing.T) {
 	testImagePath := "./resources/hashmeme.png"
-	encodedImage := ReadImageFile(testImagePath)
+	encodedImage, _, _ := ReadImageFile(testImagePath)
 	WriteImageToFile("./tmp/base.png", encodedImage)
 }
 
 func TestReadTextFromImage(t *testing.T) {
 	testImagePath := "./resources/hashmeme.png"
-	text := ReadTextFromImage(testImagePath)
+	text, _ := ReadTextFromImage(testImagePath)
 	fmt.Println(text)
 }
 
 func TestBlendImages(t *testing.T) {
 	testImagePath := "./resources/hashmeme.png"
-	baseImage := ReadImageFile(testImagePath)
-	text := ReadTextFromImage(testImagePath)
+	baseImage, _, _ := ReadImageFile(testImagePath)
+	text, _ := ReadTextFromImage(testImagePath)
 	qrImage := GenerateQr(text)
 	outImage := BlendImageWithWaterMark(baseImage, qrImage)
 	WriteImageToFile("./tmp/blended.png", outImage)
@@ -28,6 +28,6 @@ func TestBlendImages(t *testing.T) {
 
 func TestHashImageSha256(t *testing.T) {
 	testImagePath := "./resources/hashmeme.png"
-	hash := HashImageSha256(testImagePath)
+	hash, _ := HashImageSha256(testImagePath)
 	fmt.Println(fmt.Sprintf("The hash is %v", hash))
 }
