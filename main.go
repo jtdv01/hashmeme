@@ -130,18 +130,22 @@ func onSubmitForm(pathToImage string, topicID string, operatorID string, operato
 		operatorKey = operatorKey
 
 		// Send to hgraph
-		client := consensus.CreateClient(operatorID, operatorKey)
-		txResponse := consensus.SendMessage(client, imageSha256, topicID, hashMemeMessage)
-
-		// Display txResponse
-		fmt.Println(txResponse)
-		displayMessage := fmt.Sprintf("Meme submitted!\nImageSha256: %s\nAuthor: %s\nTextContent: %s", imageSha256, operatorID, textContent)
-		dialog.ShowInformation("Result", displayMessage, window)
+		client, readOperatorIDErr, readOperatorKeyErr := consensus.CreateClient(operatorID, operatorKey)
+		if readOperatorIDErr != nil || readOperatorKeyErr != nil {
+			errorMessage := fmt.Sprintf("%s\n%s", readOperatorIDErr, readOperatorKeyErr)
+			dialog.ShowInformation("Error", errorMessage, window)
+		} else {
+			txResponse := consensus.SendMessage(client, imageSha256, topicID, hashMemeMessage)
+			// Display txResponse
+			fmt.Println(txResponse)
+			displayMessage := fmt.Sprintf("Meme submitted!\nImageSha256: %s\nAuthor: %s\nTextContent: %s", imageSha256, operatorID, textContent)
+			dialog.ShowInformation("Result", displayMessage, window)
+		}
 	}
 }
 
 func onSubmitQueryForm(topicIDText string, pathToImage string, operatorID string, operatorKey string, window fyne.Window) {
-	client := consensus.CreateClient(operatorID, operatorKey)
+	client, _, _ := consensus.CreateClient(operatorID, operatorKey)
 	topicID, topicIDParseErr := hedera.TopicIDFromString(topicIDText)
 	if topicIDParseErr != nil {
 		dialog.ShowInformation("Result", "Couldn't find meme :(", window)
