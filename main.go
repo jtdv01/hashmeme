@@ -119,21 +119,25 @@ func createSubmitTabs(window fyne.Window) (*container.TabItem, *container.TabIte
 
 func onSubmitForm(pathToImage string, topicID string, operatorID string, operatorKey string, window fyne.Window) {
 	log.Println("Form submitted:", pathToImage)
-	textContent := image_processor.ReadTextFromImage(pathToImage)
-	imageSha256, _ := image_processor.HashImageSha256(pathToImage)
-	hashMemeMessage := consensus.NewMessage(operatorID, textContent, imageSha256)
+	imageSha256, err := image_processor.HashImageSha256(pathToImage)
+	if err != nil {
+		dialog.ShowInformation("Error", fmt.Sprintf("Can't read image %s", err), window)
+	} else {
+		textContent, _ := image_processor.ReadTextFromImage(pathToImage)
+		hashMemeMessage := consensus.NewMessage(operatorID, textContent, imageSha256)
 
-	operatorID = operatorID
-	operatorKey = operatorKey
+		operatorID = operatorID
+		operatorKey = operatorKey
 
-	// Send to hgraph
-	client := consensus.CreateClient(operatorID, operatorKey)
-	txResponse := consensus.SendMessage(client, imageSha256, topicID, hashMemeMessage)
+		// Send to hgraph
+		client := consensus.CreateClient(operatorID, operatorKey)
+		txResponse := consensus.SendMessage(client, imageSha256, topicID, hashMemeMessage)
 
-	// Display txResponse
-	fmt.Println(txResponse)
-	displayMessage := fmt.Sprintf("Meme submitted!\nImageSha256: %s\nAuthor: %s\nTextContent: %s", imageSha256, operatorID, textContent)
-	dialog.ShowInformation("Result", displayMessage, window)
+		// Display txResponse
+		fmt.Println(txResponse)
+		displayMessage := fmt.Sprintf("Meme submitted!\nImageSha256: %s\nAuthor: %s\nTextContent: %s", imageSha256, operatorID, textContent)
+		dialog.ShowInformation("Result", displayMessage, window)
+	}
 }
 
 func onSubmitQueryForm(topicIDText string, pathToImage string, operatorID string, operatorKey string, window fyne.Window) {

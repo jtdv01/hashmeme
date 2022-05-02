@@ -88,11 +88,11 @@ func FilterOutNonText(img image.Image) *image.Gray {
 	return gray
 }
 
-func ReadTextFromImage(inputImagePath string) string {
+func ReadTextFromImage(inputImagePath string) (string, error) {
 	pwd, _ := os.Getwd()
 
 	// Convert to greyscale
-	img, _, _ := ReadImageFile(inputImagePath)
+	img, readImageErr, _ := ReadImageFile(inputImagePath)
 	grey := FilterOutNonText(img)
 	tmpOutputForFilteredText := fmt.Sprintf("%s/tmp/text_filtered.png", pwd)
 	WriteImageToFile(tmpOutputForFilteredText, grey)
@@ -116,7 +116,7 @@ func ReadTextFromImage(inputImagePath string) string {
 	match := regexp.ReplaceAllString(text, " ")
 	// Set to lower case
 	out := strings.ToLower(match)
-	return out
+	return out, readImageErr
 }
 
 func HashImageSha256(inputImagePath string) (string, error) {
